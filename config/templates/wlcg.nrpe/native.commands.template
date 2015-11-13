@@ -1,0 +1,1 @@
+command[<nrpecommand>]=<command> -t <timeout> <options>
