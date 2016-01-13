@@ -6,14 +6,13 @@
 Summary: WLCG monitoring configuration generator
 Name: argo-ncg-eudat
 Version: 0.96.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
 Source0: %{name}-%{version}.tar.gz
 Obsoletes: grid-monitoring-config-gen
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: x86_64
-Requires: ncg-metric-config
 Provides: perl(NCG::LocalMetrics::Hash_local)
 
 %description
