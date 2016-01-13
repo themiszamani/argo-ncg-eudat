@@ -4,13 +4,13 @@
 %define perllib /usr/lib/perl5/vendor_perl/5.8.5
 
 Summary: WLCG monitoring configuration generator
-Name: grid-monitoring-config-gen
-Version: 0.95.0
+Name: argo-ncg
+Version: 0.96.0
 Release: 1%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
-Source0: %{name}-%{version}.tgz
-Obsoletes: grid-monitoring-config-gen-nagios
+Source0: %{name}-%{version}.tar.gz
+Obsoletes: grid-monitoring-config-gen
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: ncg-metric-config
@@ -39,29 +39,29 @@ install   INSTALL $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
 #
 install --directory $RPM_BUILD_ROOT%{_sbindir}
 install --directory $RPM_BUILD_ROOT/usr/libexec
-install --mode=755 .%{_sbindir}/ncg.pl $RPM_BUILD_ROOT%{_sbindir}
-install --mode=755 .%{_sbindir}/ncg.reload.sh $RPM_BUILD_ROOT%{_sbindir}
-install --mode=755 ./usr/libexec/hashlocal-to-json.pl $RPM_BUILD_ROOT/usr/libexec
+install --mode=755 ncg.pl $RPM_BUILD_ROOT%{_sbindir}
+install --mode=755 ncg.reload.sh $RPM_BUILD_ROOT%{_sbindir}
+install --mode=755 hashlocal-to-json.pl $RPM_BUILD_ROOT/usr/libexec
 #
 # Config
 #
 install --directory $RPM_BUILD_ROOT%{configdir}/ncg.conf.d/
 install --directory $RPM_BUILD_ROOT%{configdir}/
-install ncg.conf $RPM_BUILD_ROOT%{configdir}
-install ncg.conf.example $RPM_BUILD_ROOT%{configdir}
-install ncg.localdb $RPM_BUILD_ROOT%{configdir}
-install ncg.localdb.example $RPM_BUILD_ROOT%{configdir}
-install ncg.multisite.conf $RPM_BUILD_ROOT%{configdir}
-install ncg.atpvo.conf $RPM_BUILD_ROOT%{configdir}
-install check_logfiles_ncg.conf $RPM_BUILD_ROOT%{configdir}
+install config/ncg.conf $RPM_BUILD_ROOT%{configdir}
+install config/ncg.conf.example $RPM_BUILD_ROOT%{configdir}
+install config/ncg.localdb $RPM_BUILD_ROOT%{configdir}
+install config/ncg.localdb.example $RPM_BUILD_ROOT%{configdir}
+install config/ncg.multisite.conf $RPM_BUILD_ROOT%{configdir}
+install config/ncg.atpvo.conf $RPM_BUILD_ROOT%{configdir}
+install config/check_logfiles_ncg.conf $RPM_BUILD_ROOT%{configdir}
 install --directory $RPM_BUILD_ROOT/etc/nagios/nrpe
 install --directory $RPM_BUILD_ROOT/etc/nagios/wlcg.d
 install --directory $RPM_BUILD_ROOT/etc/nagios/unicore
-install --mode=644 unicore/log4j-ucc.properties $RPM_BUILD_ROOT/etc/nagios/unicore
-install --mode=644 unicore/log4j-ucc-debug.properties $RPM_BUILD_ROOT/etc/nagios/unicore
-install --mode=644 unicore/log4j-uvosclc.properties $RPM_BUILD_ROOT/etc/nagios/unicore
-install --mode=644 unicore/log4j-uvosclc-debug.properties $RPM_BUILD_ROOT/etc/nagios/unicore
-install --mode=644 unicore/UNICORE_Job.u $RPM_BUILD_ROOT/etc/nagios/unicore
+install --mode=644 config/unicore/log4j-ucc.properties $RPM_BUILD_ROOT/etc/nagios/unicore
+install --mode=644 config/unicore/log4j-ucc-debug.properties $RPM_BUILD_ROOT/etc/nagios/unicore
+install --mode=644 config/unicore/log4j-uvosclc.properties $RPM_BUILD_ROOT/etc/nagios/unicore
+install --mode=644 config/unicore/log4j-uvosclc-debug.properties $RPM_BUILD_ROOT/etc/nagios/unicore
+install --mode=644 config/unicore/UNICORE_Job.u $RPM_BUILD_ROOT/etc/nagios/unicore
 #
 # modules
 #
@@ -114,22 +114,22 @@ install --directory $RPM_BUILD_ROOT%{templatedir}/hosts
 install --directory $RPM_BUILD_ROOT%{templatedir}/services
 install --directory $RPM_BUILD_ROOT%{templatedir}/wlcg.nagios
 install --directory $RPM_BUILD_ROOT%{templatedir}/contacts
-install templates/wlcg.nrpe/native.commands.template $RPM_BUILD_ROOT%{templatedir}/wlcg.nrpe
-install templates/hosts/hostgroup.template  $RPM_BUILD_ROOT%{templatedir}/hosts
-install templates/hosts/host.template  $RPM_BUILD_ROOT%{templatedir}/hosts
-install templates/services/nagios.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/services/native.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/services/wlcg.passive.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/services/servicegroup.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/services/servicedependency.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/services/wlcg.nrpe.template  $RPM_BUILD_ROOT%{templatedir}/services
-install templates/wlcg.nagios/nrpe.template  $RPM_BUILD_ROOT%{templatedir}/wlcg.nagios
-install templates/contacts/contactgroup.template  $RPM_BUILD_ROOT%{templatedir}/contacts
-install templates/contacts/contact.template  $RPM_BUILD_ROOT%{templatedir}/contacts
-install templates/contacts.template  $RPM_BUILD_ROOT%{templatedir}
-install templates/hosts.template  $RPM_BUILD_ROOT%{templatedir}
-install templates/commands.template  $RPM_BUILD_ROOT%{templatedir}
-install templates/services.template  $RPM_BUILD_ROOT%{templatedir}
+install config/templates/wlcg.nrpe/native.commands.template $RPM_BUILD_ROOT%{templatedir}/wlcg.nrpe
+install config/templates/hosts/hostgroup.template  $RPM_BUILD_ROOT%{templatedir}/hosts
+install config/templates/hosts/host.template  $RPM_BUILD_ROOT%{templatedir}/hosts
+install config/templates/services/nagios.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/services/native.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/services/wlcg.passive.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/services/servicegroup.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/services/servicedependency.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/services/wlcg.nrpe.template  $RPM_BUILD_ROOT%{templatedir}/services
+install config/templates/wlcg.nagios/nrpe.template  $RPM_BUILD_ROOT%{templatedir}/wlcg.nagios
+install config/templates/contacts/contactgroup.template  $RPM_BUILD_ROOT%{templatedir}/contacts
+install config/templates/contacts/contact.template  $RPM_BUILD_ROOT%{templatedir}/contacts
+install config/templates/contacts.template  $RPM_BUILD_ROOT%{templatedir}
+install config/templates/hosts.template  $RPM_BUILD_ROOT%{templatedir}
+install config/templates/commands.template  $RPM_BUILD_ROOT%{templatedir}
+install config/templates/services.template  $RPM_BUILD_ROOT%{templatedir}
 #
 # config dirqueue
 install --directory $RPM_BUILD_ROOT/var/run/ncg
