@@ -1,18 +1,18 @@
 %define lperllib modules/NCG
 %define templatedir %{_datadir}/grid-monitoring/config-gen/nagios
 %define configdir /etc/ncg
-%define perllib /usr/lib/perl5/vendor_perl/5.8.5
+%define perllib %{perl_vendorarch}/vendor_perl/5.8.5
 
 Summary: WLCG monitoring configuration generator
-Name: argo-ncg
-Version: 0.96.0
+Name: argo-ncg-eudat
+Version: 0.96.2
 Release: 1%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
 Source0: %{name}-%{version}.tar.gz
 Obsoletes: grid-monitoring-config-gen
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildArch: noarch
+BuildArch: x86_64
 Requires: ncg-metric-config
 Provides: perl(NCG::LocalMetrics::Hash_local)
 
@@ -133,6 +133,16 @@ install config/templates/services.template  $RPM_BUILD_ROOT%{templatedir}
 #
 # config dirqueue
 install --directory $RPM_BUILD_ROOT/var/run/ncg
+#
+# misc
+#
+install --directory $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+install etc/perllib.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/perllib.sh
+install etc/perllib.csh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/perllib.csh
+install --directory $RPM_BUILD_ROOT%{_sysconfdir}/ncg-metric-config.d
+install ncg-metric-config.d/ncg-metric-config.conf $RPM_BUILD_ROOT%{_sysconfdir}/ncg-metric-config.conf
+install ncg-metric-config.d/cloudmon.conf $RPM_BUILD_ROOT%{_sysconfdir}/ncg-metric-config.d/cloudmon.conf
+install ncg-metric-config.d/opsmon.conf $RPM_BUILD_ROOT%{_sysconfdir}/ncg-metric-config.d/opsmon.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -210,6 +220,11 @@ rm -rf $RPM_BUILD_ROOT
 %{templatedir}/commands.template
 %{templatedir}/services.template
 %dir %attr(0770,nagios,nagios) /var/run/ncg
+%{_sysconfdir}/profile.d/perllib.sh
+%{_sysconfdir}/profile.d/perllib.csh
+%{_sysconfdir}/ncg-metric-config.conf
+%{_sysconfdir}/ncg-metric-config.d/cloudmon.conf
+%{_sysconfdir}/ncg-metric-config.d/opsmon.conf
 
 %pre
 if [ -f /etc/init.d/ncg ] ; then
