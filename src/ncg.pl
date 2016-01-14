@@ -222,13 +222,6 @@ sub analyzeSite {
     $siteDB->{VERBOSE} = $VERBOSE;
     $siteDB->{DEBUG} = $DEBUG;
 
-    # invoke SAM and GOCDB first in order to get BDII if not defined
-    if (!$siteDB->siteLDAP) {
-        invokeNCGObject ($conf, "NCG::SiteInfo", "SAM", $options, 1);
-        invokeNCGObject ($conf, "NCG::SiteInfo", "GOCDB", $options, 1);
-        invokeNCGObject ($conf, "NCG::SiteInfo", "ATP", $options, 1);
-    }
-
     # invoke others...
     invokeNCGObjects ($conf, "NCG::SiteInfo", $options, 1, $sites);
 
@@ -242,10 +235,6 @@ sub analyzeSite {
         return;
     }
     
-    # invoke LDAP first otherwise Active will erase SRMs because of
-    # missing SE_PATH
-    invokeNCGObject ($conf, "NCG::LocalMetricsAttrs", "LDAP", $options );
-
     # invoke others...
     invokeNCGObjects ($conf, "NCG::LocalMetricsAttrs", $options, undef, $sites);
 
