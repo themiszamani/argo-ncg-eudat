@@ -1,4 +1,4 @@
-PKGNAME=nagios-plugins-globus
+PKGNAME=argo-ncg-eudat
 SPECFILE=${PKGNAME}.spec
 FILES=Makefile ${SPECFILE} src/*
 
