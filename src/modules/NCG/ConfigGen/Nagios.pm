@@ -468,11 +468,7 @@ sub _genCommands {
     }
 
     my $sendToDashboard='';
-    my $ggusServerFqdn='';
 
-    if ($self->{GGUS_SERVER_FQDN}) {
-        $ggusServerFqdn = "--ggus-server $self->{GGUS_SERVER_FQDN}";
-    }
     if ($self->{SEND_TO_DASHBOARD}) {
         $sendToDashboard = "--send-to-dashboard";
     }
@@ -485,7 +481,6 @@ sub _genCommands {
         $line =~ s/<NAGIOS_SERVER>/$self->{NAGIOS_SERVER}/g;
         $line =~ s/<LOCAL_METRIC_STORE>/$self->{LOCAL_METRIC_STORE}/g;
         $line =~ s/<SEND_TO_DASHBOARD>/$sendToDashboard/g;
-        $line =~ s/<GGUS_SERVER_FQDN>/$ggusServerFqdn/g;
         $line =~ s/<SEND_TO_MSG>/$self->{SEND_TO_MSG}/g;
         print $CONFIG $line;
     }
@@ -1793,18 +1788,8 @@ sub _genServices {
             $custom->{"_service_flavour"} = $serviceType;
             $custom->{"_grid"} = $grids if ($grids);
             $custom->{"_server"} = $self->{NAGIOS_SERVER};
-            $custom->{"_last_notification_type"} = "";
-            $custom->{"_dashboard_notification_status"} = "";
-            $custom->{"_dashboard_notification_status_last_update"} = "";
-            if ($self->{GGUS_SERVER_FQDN}) {
-                $custom->{"_GGUS"} = "";
-            }
             if ($roc) {
                 $custom->{"_roc"} = $roc;
-            }
-
-            if ($obsess && ( $self->{GGUS_SERVER_FQDN} || $self->{SEND_TO_DASHBOARD} )) {
-                $contactgroupLocal .= ", msg-contacts";
             }
 
             $metricSgroup = $self->_getLocalServiceGroups($host, $metric, $servicegroups);
@@ -2573,11 +2558,6 @@ reference that can contain following elements:
                      a temporary location (e.g. ncg.reload.sh). final location
                      is needed for metrics with parameters stored in file
   (default: OUTPUT_DIR)
-
-  GGUS_SERVER_FQDN - if set to valid GGUS server handle_service_change will
-                    send notifications to GGUS
-                   - furthremore services which publish notifications will
-                   have _GGUS custom var added
 
   GLITE_VERSION - which version of Glite UI the tests will run on.
   (default: UNKNOWN)
