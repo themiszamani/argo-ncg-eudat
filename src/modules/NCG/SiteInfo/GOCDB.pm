@@ -25,17 +25,12 @@ use vars qw(@ISA);
 
 @ISA=("NCG::SiteInfo");
 
-my $DEFAULT_GOCDB_ROOT_URL = "https://goc.egi.eu/gocdbpi";
 my $GOCDB_GET_METHOD = "/public/?method=get_service_endpoint";
 
 sub new {
     my $proto  = shift;
     my $class  = ref($proto) || $proto;
     my $self =  $class->SUPER::new(@_);
-
-    if (! $self->{GOCDB_ROOT_URL}) {
-        $self->{GOCDB_ROOT_URL} = $DEFAULT_GOCDB_ROOT_URL;
-    }
 
     if (! exists $self->{NODE_MONITORED}) {
         $self->{NODE_MONITORED} = 'Y';
@@ -61,7 +56,11 @@ sub getData {
 
     my $ua = LWP::UserAgent->new(timeout=>$self->{TIMEOUT}, env_proxy=>1);
     $ua->agent("NCG::SiteInfo::GOCDB");
-
+    
+    if (!$self->{GOCDB_ROOT_URL}) {
+        $self->error("Unable to fetch service endpoints from GOCDB. Please define a valid GOCDB url under SiteInfo section of NCG's configuration file.");
+        return 0;
+    }
     my $url = $self->{GOCDB_ROOT_URL} . $GOCDB_GET_METHOD . '&sitename=' . $sitename;
     if ($self->{NODE_MONITORED}) {
         $url .= '&monitored=' . $self->{NODE_MONITORED};
@@ -192,7 +191,6 @@ Creates new NCG::SiteInfo::GOCDB instance. Argument $options is hash reference t
 can contains following elements:
   GOCDB_ROOT_URL - root URL used for GOCDB query interface
                  - only if GOCDB_ACCESS_TYPE is xml
-                 - default: https://goc.egi.eu/gocdbpi
 
   NODE_MONITORED - is node monitored (for possible values see GOCDB documentation)
                  - default: Y

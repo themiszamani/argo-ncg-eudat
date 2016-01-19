@@ -25,7 +25,6 @@ use vars qw(@ISA);
 
 @ISA=("NCG::SiteSet");
 
-my $DEFAULT_GOCDB_ROOT_URL = "https://goc.egi.eu/gocdbpi";
 my $GOCDB_GET_METHOD = "/public/?method=get_site_list";
 
 sub new {
@@ -33,10 +32,6 @@ sub new {
     my $class  = ref($proto) || $proto;
     my $self =  $class->SUPER::new(@_);
 
-    # set default values
-    if (! $self->{GOCDB_ROOT_URL}) {
-        $self->{GOCDB_ROOT_URL} = $DEFAULT_GOCDB_ROOT_URL;
-    }
     if (! exists $self->{SITE_MONITORED}) {
         $self->{SITE_MONITORED} = 'Y';
     }
@@ -70,7 +65,11 @@ sub getData
 
     my $ua = LWP::UserAgent->new(timeout=>$self->{TIMEOUT}, env_proxy=>1);
     $ua->agent("NCG::SiteSet::GOCDB");
-
+    
+    if (!$self->{GOCDB_ROOT_URL}) {
+        $self->error("Unable to fetch sites from GOCDB API. Please define a valid GOCDB url under SiteSet section of NCG's configuration file.");
+        return 0;
+    }
     my $url = $self->{GOCDB_ROOT_URL} . $GOCDB_GET_METHOD;
     if ($self->{ROC}) {
         $url .= '&roc=' . $self->{ROC};
@@ -162,7 +161,6 @@ Creates new NCG::SiteSet::GOCDB instance. Argument $options is hash reference th
 can contains following elements:
   GOCDB_ROOT_URL - root URL used for GOCDB query interface
                  - only if GOCDB_ACCESS_TYPE is xml
-                 - default: https://goc.egi.eu/gocdbpi
 
   ROC - name of the federation (for possible values see GOCDB documentation)
       - if not defined module will fetch all sites.

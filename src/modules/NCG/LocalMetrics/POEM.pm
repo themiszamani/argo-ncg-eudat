@@ -25,8 +25,8 @@ use JSON;
 
 @ISA=("NCG::LocalMetrics");
 
-my $DEFAULT_POEM_ROOT_URL = "http://localhost/poem_sync";
-my $DEFAULT_POEM_ROOT_URL_SUFFIX = "/api/0.1/json/metricinstances/";
+my $DEFAULT_POEM_ROOT_URL = "http://localhost/poem";
+my $DEFAULT_POEM_ROOT_URL_SUFFIX = "/api/0.2/json/profiles";
 
 sub new
 {
@@ -102,17 +102,18 @@ sub getData {
 
     # Load (service, metric) tuples
     if ($jsonRef && ref $jsonRef eq "ARRAY") {
-        foreach my $metricTuple (@{$jsonRef}) {
-            my $service = $metricTuple->[1];
-            my $metric = $metricTuple->[0];
-            my $vo = $metricTuple->[2];
-            my $voFqan = $metricTuple->[3] || '_ALL_';
-            
-            unless (exists $self->{METRIC_CONFIG}->{$metric}) {
-                $self->error("Metric configuration does not contain metric $metric. Metric will be skipped.");
-            } else {
-                $poemService->{$service}->{$metric}->{$vo}->{$voFqan} = 1;
-            }
+       foreach my $metricTuple (@{$jsonRef}) {
+           foreach my $metricInstance (@{$metricTuple->{metric_instances}}) {
+                my $service = $metricInstance->{atp_service_type_flavour};
+                my $metric = $metricInstance->{metric};
+                my $vo = $metricInstance->{vo};
+                my $voFqan = $metricInstance->{fqan};
+                unless (exists $self->{METRIC_CONFIG}->{$metric}) {
+                     $self->error("Metric configuration does not contain metric $metric. Metric will be skipped.");
+                } else {
+                     $poemService->{$service}->{$metric}->{$vo}->{$voFqan} = 1;
+                }
+           }
         }
     }
 
@@ -122,11 +123,6 @@ sub getData {
                 foreach my $metric (keys %{$poemService->{$service}}) {
                     my $metricRef = $self->{METRIC_CONFIG}->{$metric};
                     my $customMetricRef = {%{$metricRef}};
-
-                    # hacks
-                    if ($service eq 'CREAM-CE' && exists $metricRef->{parent} && $metricRef->{parent} eq 'emi.ce.CREAMCE-JobState') {
-                        $customMetricRef->{parent} = 'emi.cream.CREAMCE-JobState';
-                    }                    
 
                     foreach my $vo (keys %{$poemService->{$service}->{$metric}}) {
                         foreach my $voFqan (keys %{$poemService->{$service}->{$metric}->{$vo}}) {
