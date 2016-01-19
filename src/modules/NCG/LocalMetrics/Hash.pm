@@ -352,48 +352,6 @@ $WLCG_SERVICE->{'hr.srce.GridProxy-Get'}->{attribute}->{ROBOT_CERT} = "--robot-c
 $WLCG_SERVICE->{'hr.srce.GridProxy-Get'}->{attribute}->{ROBOT_KEY} = "--robot-key";
 $WLCG_SERVICE->{'hr.srce.GridProxy-Get'}->{attribute}->{PROXY_LIFETIME} = "--lifetime";
 
-# localdb.template
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{probe} = "send_to_db";
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{config}->{timeout} = 120;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{config}->{interval} = 5;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{config}->{retryInterval} = 2;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{config}->{maxCheckAttempts} = 4;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{config}->{path} = $NCG::NCG_PLUGINS_PATH_GRIDMON;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{flags}->{PNP} = 1;
-$WLCG_SERVICE->{'org.egee.SendToMetricStore'}->{parameter}->{'--extra-opts'} = 'send_to_db@/etc/nagios/plugins/send_to_db.ini';
-
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{probe} = "check_poem_sync";
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{config}->{timeout} = 120;
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{config}->{interval} = 30;
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{config}->{retryInterval} = 10;
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{config}->{maxCheckAttempts} = 4;
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{config}->{path} = '/usr/bin/';
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'ch.cern.sam.POEMSync'}->{flags}->{NOARGS} = 1;
-
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{probe} = "check_atp_sync";
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{config}->{timeout} = 600;
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{config}->{interval} = 30;
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{config}->{retryInterval} = 15;
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{config}->{maxCheckAttempts} = 4;
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{config}->{path} = '/usr/bin/';
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'org.egee.ATPSync'}->{flags}->{NOARGS} = 1;
-
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{probe} = "org.nagiosexchange/check_dirsize.sh";
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{config}->{timeout} = 15;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{config}->{interval} = 60;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{config}->{retryInterval} = 5;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{config}->{maxCheckAttempts} = 3;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{config}->{path} = $NCG::NCG_PROBES_PATH_GRIDMON;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{flags}->{PNP} = 1;
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{parameter}->{'-d'} = '/var/spool/nagios2metricstore';
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{parameter}->{'-w'} = '10000';
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{parameter}->{'-c'} = '100000';
-$WLCG_SERVICE->{'org.nagios.MrsDirSize'}->{parameter}->{'-f'} = '';
-
 # myproxy(.nrpe).template
 
 $WLCG_SERVICE->{'hr.srce.MyProxy-ProxyLifetime'}->{probe} = "hr.srce/MyProxy-probe";
@@ -512,43 +470,6 @@ $WLCG_SERVICE->{'org.nagios.NagiosCmdFile'}->{parameter}->{-o} = '';
 # $WLCG_SERVICE->{'org.nagios.NCGPidFile'}->{parameter}->{-c} = '172800';
 # $WLCG_SERVICE->{'org.nagios.NCGPidFile'}->{docurl} = "http://wiki.cro-ngi.hr/en/index.php/Org.nagios.NCGPidFile";
 
-# GoodCEs for SAM-WMS
-
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{probe} = "hr.srce/gather_healthy_nodes";
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{config}->{timeout} = 120;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{config}->{interval} = 15;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{config}->{retryInterval} = 5;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{config}->{maxCheckAttempts} = 3;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{config}->{path} = $NCG::NCG_PROBES_PATH_GRIDMON;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{flags}->{PNP} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{flags}->{VO} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{flags}->{LOCALDEP} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{flags}->{REQUIREMENT} = 'emi.wms.WMS-JobSubmit';
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{attribute}->{VONAME} = "--vo";
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{attribute}->{VO_FQAN} = "--vo-fqan";
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{parameter}->{'--dir'} = '/var/lib/gridprobes';
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{parameter}->{'--file'} = 'GoodCEs';
-$WLCG_SERVICE->{'hr.srce.GoodCEs'}->{parameter}->{"--metric"} = 'emi.cream.CREAMCE-JobSubmit';
-
-# GoodSEs for CE-JobState and WN-RepRep
-
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{probe} = "hr.srce/gather_healthy_nodes";
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{config}->{timeout} = 120;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{config}->{interval} = 15;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{config}->{retryInterval} = 5;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{config}->{maxCheckAttempts} = 3;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{config}->{path} = $NCG::NCG_PROBES_PATH_GRIDMON;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{flags}->{NOHOSTNAME} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{flags}->{PNP} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{flags}->{VO} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{flags}->{LOCALDEP} = 1;
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{attribute}->{VONAME} = "--vo";
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{attribute}->{VO_FQAN} = "--vo-fqan";
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{parameter}->{"--metric"} = 'org.sam.SRM-All';
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{parameter}->{'--dir'} = '/var/lib/gridprobes';
-$WLCG_SERVICE->{'hr.srce.GoodSEs'}->{parameter}->{'--file'} = 'GoodSEs';
-
 ########################################################################
 
 ########################################################################
@@ -617,43 +538,23 @@ $WLCG_NODETYPE->{security}->{"ARC-CE"} = [
 
 # Nagios internal checks profile
 $WLCG_NODETYPE->{internal}->{"NAGIOS"} = [
-'eu.egi.sec.CRL',
-'hr.srce.CADist-Check',
-'hr.srce.CADist-GetFiles',
 'hr.srce.CertLifetime',
 'org.nagios.DiskCheck',
 'org.nagios.ProcessCrond',
 'org.nagios.ProcessNpcd',
 'org.nagios.ProcessNSCA', # (if NRPE_UI is set)
 'org.egee.ImportGocdbDowntimes',
-'org.egee.SendToMetricStore', # (if LOCAL_METRIC_STORE)
-'org.egee.ATPSync', # (if LOCAL_METRIC_STORE)
-'ch.cern.sam.POEMSync', # (if LOCAL_METRIC_STORE)
-'ch.cern.sam.MrsCheckSpool',
-'ch.cern.sam.MrsCheckDBInserts',
-'org.nagios.MrsDirSize', # (if LOCAL_METRIC_STORE)
 'hr.srce.GridProxy-Valid', # (if INCLUDE_PROXY_CHECKS && local, NRPE)
 'hr.srce.GridProxy-Get', # (if INCLUDE_PROXY_CHECKS && local, NRPE)
-
 'org.egee.SendToMsg', # (if INCLUDE_MSG_SEND_CHECKS
 'org.egee.RecvFromQueue', # (if INCLUDE_MSG_CHECKS_RECV
 #'org.egee.CheckConfig', # (if INCLUDE_MSG_CHECKS_RECV
 'org.nagios.MsgDirSize', # (if INCLUDE_MSG_CHECKS_RECV || INCLUDE_MSG_SEND_CHECKS
 'org.nagios.ProcessMsgToHandler', # (if INCLUDE_MSG_CHECKS_RECV
 'org.nagios.MsgToHandlerPidFile', # (if INCLUDE_MSG_CHECKS_RECV
-'hr.srce.GoodCEs',
-'hr.srce.GoodSEs',
 'org.nagiosexchange.LogFiles',
 'org.nagios.NagiosCmdFile',
 'org.nagiosexchange.NCGLogFiles',
-'emi.cream.CREAMCE-JobMonit',
-'emi.cream.CREAMCE-DirectJobMonit',
-'emi.cream.glexec.CREAMCE-JobMonit',
-'emi.wms.WMS-JobMonit',
-'eu.egi.mpi.simplejob.CREAMCE-JobMonit',
-'eu.egi.mpi.complexjob.CREAMCE-JobMonit',
-'org.nordugrid.ARC-CE-monitor',
-'org.nordugrid.ARC-CE-clean',
 ];
 
 $WLCG_NODETYPE->{internal}->{"NRPE"} = [

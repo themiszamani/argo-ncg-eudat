@@ -18,7 +18,6 @@
 package NCG;
 
 use NCG::SiteDB;
-use DBI;
 
 # static variables used for path configuration variable in metric definitions
 # in config generation (ConfigGen module) they are replaced by:
@@ -96,72 +95,6 @@ sub getData
 {
     my $self = shift;
     $self->error("Method getData not implemented!");
-}
-
-sub getDatabaseDSN {
-    my $self = shift;
-    my $DRIVER = shift;
-    my $CONNECT = shift;
-    my $dsn;
-    $dsn = "DBI:" . $DRIVER . ":" . $CONNECT;
-    return $dsn;
-}
-
-
-sub connectDB {
-    my $self = shift;
-    my $DRIVER = shift;
-    my $CONNECT = shift;
-    my $USER = shift;
-    my $PASS = shift;
-    my $dbh = DBI->connect($self->getDatabaseDSN($DRIVER,$CONNECT),$USER,$PASS);
-    ($DBI::errstr) and
-        $self->error("Could not connect to database: $DBI::errstr ($DBI::err)") and
-        return;
-
-    $dbh;
-}
-
-sub query{
-    my $self = shift;
-    my $stmt = shift;
-    my $db=shift;
-    my $sth = $db->prepare($stmt);
-    my @fields;
-    my $arrRef;
-    my $sqlError;
-
-    if ($sth){
-        $DBI::errstr and $sqlError.="In prepare: $DBI::errstr\n";
-        $sth->execute;
-        $DBI::errstr and $sqlError.="In execute: $DBI::errstr\n";
-        $sth->{NAME} and @fields = @{$sth->{NAME}};
-        $arrRef = $sth->fetchall_arrayref;
-        $DBI::errstr and $sqlError.="In fetch: $DBI::errstr\n";
-        $sth->finish;
-        $DBI::errstr and $sqlError.="In finish: $DBI::errstr\n";
-    };
-
-    my @result;
-    for (@$arrRef) {
-        my %temphash;
-            for (my $i=0; $i<=$#fields; ++$i) {
-            if (defined(${$_}[$i])){
-                $temphash{$fields[$i]} = ${$_}[$i];
-            } else {
-                $temphash{$fields[$i]} = "";
-            }
-        }
-        push @result, \%temphash;
-        #print "1 $#fields..";
-    }
-
-    $sqlError and
-        $self->error("Database error: $sqlError.") and
-                return;
-
-
-    \@result;
 }
 
 sub _addRecurseDirs {

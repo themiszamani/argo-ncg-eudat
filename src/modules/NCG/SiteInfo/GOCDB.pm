@@ -191,7 +191,6 @@ Creates new NCG::SiteInfo::GOCDB instance. Argument $options is hash reference t
 can contains following elements:
   GOCDB_ROOT_URL - root URL used for GOCDB query interface
                  - only if GOCDB_ACCESS_TYPE is xml
-                 - default: https://goc.egi.eu/gocdbpi
 
   NODE_MONITORED - is node monitored (for possible values see GOCDB documentation)
                  - default: Y

@@ -161,7 +161,6 @@ Creates new NCG::SiteSet::GOCDB instance. Argument $options is hash reference th
 can contains following elements:
   GOCDB_ROOT_URL - root URL used for GOCDB query interface
                  - only if GOCDB_ACCESS_TYPE is xml
-                 - default: https://goc.egi.eu/gocdbpi
 
   ROC - name of the federation (for possible values see GOCDB documentation)
       - if not defined module will fetch all sites.

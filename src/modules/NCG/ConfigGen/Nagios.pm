@@ -121,8 +121,6 @@ sub new
         if (!defined $self->{ENABLE_NOTIFICATIONS} && ! defined $self->{SEND_TO_EMAIL});
     $self->{ENABLE_FLAP_DETECTION} = $DEFAULT_ENABLE_FLAP_DETECTION
         unless (defined $self->{ENABLE_FLAP_DETECTION});
-    $self->{LOCAL_METRIC_STORE} = 0
-        unless (defined $self->{LOCAL_METRIC_STORE});
     $self->{SEND_TO_MSG} = 1
         unless (defined $self->{SEND_TO_MSG});
     $self->{HOST_NOTIFICATIONS_OPTIONS} = "d,r"
@@ -479,7 +477,6 @@ sub _genCommands {
         $line =~ s/<NAGIOS_ROLE>/$self->{NAGIOS_ROLE}/g;
         $line =~ s/<NOTIFICATION_HEADER>/$self->{NOTIFICATION_HEADER}/g;
         $line =~ s/<NAGIOS_SERVER>/$self->{NAGIOS_SERVER}/g;
-        $line =~ s/<LOCAL_METRIC_STORE>/$self->{LOCAL_METRIC_STORE}/g;
         $line =~ s/<SEND_TO_DASHBOARD>/$sendToDashboard/g;
         $line =~ s/<SEND_TO_MSG>/$self->{SEND_TO_MSG}/g;
         print $CONFIG $line;
@@ -2572,10 +2569,6 @@ reference that can contain following elements:
 
   INCLUDE_LB_NODE - if true configuration for load balancing nodes
   will be generated.
-  (default: false)
-
-  LOCAL_METRIC_STORE - if true configuration for storing results to
-  local metric store.
   (default: false)
 
   MULTI_SITE_GLOBAL - if true only global configuration for multisite
