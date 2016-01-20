@@ -10,19 +10,6 @@ define timeperiod{
         saturday                        00:00-24:00
 }
 
-define contact{
-        contact_name                    msg-contact
-        alias                           Pseudo user used for publishing to MSG
-        service_notification_period     ncg-24x7
-        host_notification_period        ncg-24x7
-        service_notification_options    w,u,c,r,f,s
-        host_notification_options       n
-        service_notification_commands   ncg-notify-by-msg
-        host_notification_commands      ncg-host-notify-by-email
-        email                           msg@pseudo
-        contactgroups                   msg-contacts
-}
-
 define contactgroup{
         contactgroup_name               msg-contacts
         alias                           Pseudo users used for publishing to MSG

@@ -187,7 +187,7 @@ reference that can contain following elements:
     (default: )
     
     POEM_ROOT_URL - POEM JSON API root URL
-    (default: http://localhost/poem_sync)
+    (default: http://localhost/poem)
     
     METRIC_CONFIG - metric configuration structure fetched from
     NCG::MetricConfig module

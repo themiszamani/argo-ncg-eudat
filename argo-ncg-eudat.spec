@@ -77,15 +77,12 @@ install --mode=644 modules/NCG/ConfigPublish/ConfigCache.pm $RPM_BUILD_ROOT%{per
 install --mode=644 modules/NCG/LocalMetricsAttrs/Active.pm $RPM_BUILD_ROOT%{perllib}/NCG/LocalMetricsAttrs
 install --mode=644 modules/NCG/LocalMetricsAttrs/File.pm $RPM_BUILD_ROOT%{perllib}/NCG/LocalMetricsAttrs
 install --mode=644 modules/NCG/LocalMetricsAttrs/LDAP.pm $RPM_BUILD_ROOT%{perllib}/NCG/LocalMetricsAttrs
-install --mode=644 modules/NCG/SiteInfo/ATP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteInfo
 install --mode=644 modules/NCG/SiteInfo/GOCDB.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteInfo
 install --mode=644 modules/NCG/SiteInfo/File.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteInfo
 install --mode=644 modules/NCG/SiteInfo/LDAP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteInfo
-install --mode=644 modules/NCG/SiteSet/ATP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteSet
 install --mode=644 modules/NCG/SiteSet/GOCDB.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteSet
 install --mode=644 modules/NCG/SiteSet/File.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteSet
 install --mode=644 modules/NCG/SiteSet/LDAP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteSet
-install --mode=644 modules/NCG/SiteContacts/ATP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteContacts
 install --mode=644 modules/NCG/SiteContacts/GOCDB.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteContacts
 install --mode=644 modules/NCG/SiteContacts/LDAP.pm $RPM_BUILD_ROOT%{perllib}/NCG/SiteContacts
 install --mode=644 modules/NCG/SiteContacts/File.pm  $RPM_BUILD_ROOT%{perllib}/NCG/SiteContacts
@@ -187,17 +184,14 @@ rm -rf $RPM_BUILD_ROOT
 %{perllib}/NCG/RemoteMetrics.pm
 %{perllib}/NCG/RemoteMetrics/Nagios.pm
 %{perllib}/NCG/SiteContacts.pm
-%{perllib}/NCG/SiteContacts/ATP.pm
 %{perllib}/NCG/SiteContacts/GOCDB.pm
 %{perllib}/NCG/SiteContacts/LDAP.pm
 %{perllib}/NCG/SiteContacts/File.pm
 %{perllib}/NCG/SiteInfo.pm
-%{perllib}/NCG/SiteInfo/ATP.pm
 %{perllib}/NCG/SiteInfo/GOCDB.pm
 %{perllib}/NCG/SiteInfo/File.pm
 %{perllib}/NCG/SiteInfo/LDAP.pm
 %{perllib}/NCG/SiteSet.pm
-%{perllib}/NCG/SiteSet/ATP.pm
 %{perllib}/NCG/SiteSet/GOCDB.pm
 %{perllib}/NCG/SiteSet/File.pm
 %{perllib}/NCG/SiteSet/LDAP.pm

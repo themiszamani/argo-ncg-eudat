@@ -130,6 +130,11 @@ sub new
     $self->{VO_HOST_FILTER} = $DEFAULT_VO_HOST_FILTER
         unless (defined $self->{VO_HOST_FILTER});
 
+    if (!$self->{TENANT}) {
+        $self->error("Tenant name is not defined. Unable to generate nagios commands configuration.");
+            return;
+    }
+
     if ($self->{MULTI_SITE_GLOBAL}) {
         if (! defined $self->{MULTI_SITE_SITES}) {
             undef $self;
@@ -182,7 +187,6 @@ sub new
     if ($self->{BACKUP_INSTANCE}) {
         $self->{SEND_TO_MSG} = 0;
         $self->{ENABLE_NOTIFICATIONS} = 0;
-        $self->{SEND_TO_DASHBOARD} = 0;
     }
 
     $self;
@@ -465,20 +469,14 @@ sub _genCommands {
         return;
     }
 
-    my $sendToDashboard='';
-
-    if ($self->{SEND_TO_DASHBOARD}) {
-        $sendToDashboard = "--send-to-dashboard";
-    }
-
     while ($line = <$TEMPL>){
         $line =~ s/<WLCG_PLUGINS_DIR>/$self->{WLCG_PLUGINS_DIR}/g;
         $line =~ s/<WLCG_PROBES_DIR>/$self->{WLCG_PROBES_DIR}/g;
         $line =~ s/<NAGIOS_ROLE>/$self->{NAGIOS_ROLE}/g;
         $line =~ s/<NOTIFICATION_HEADER>/$self->{NOTIFICATION_HEADER}/g;
         $line =~ s/<NAGIOS_SERVER>/$self->{NAGIOS_SERVER}/g;
-        $line =~ s/<SEND_TO_DASHBOARD>/$sendToDashboard/g;
         $line =~ s/<SEND_TO_MSG>/$self->{SEND_TO_MSG}/g;
+        $line =~ s/<TENANT>/$self->{TENANT}/g;
         print $CONFIG $line;
     }
 
@@ -1775,7 +1773,6 @@ sub _genServices {
             my $serviceType = join (',', $self->{SITEDB}->metricServices($host, $metric));
             my $obsess = $self->{SITEDB}->metricFlag($host, $metric, "OBSESS") || 0;
             my $contactgroupLocal = $contactgroup;
-            my $roc = $self->{SITEDB}->siteROC || $self->{ROC};
             my $metricVo = $self->{SITEDB}->metricFlag($host, $metric, "VO");
 
             my $custom = {};
@@ -1785,9 +1782,6 @@ sub _genServices {
             $custom->{"_service_flavour"} = $serviceType;
             $custom->{"_grid"} = $grids if ($grids);
             $custom->{"_server"} = $self->{NAGIOS_SERVER};
-            if ($roc) {
-                $custom->{"_roc"} = $roc;
-            }
 
             $metricSgroup = $self->_getLocalServiceGroups($host, $metric, $servicegroups);
 
@@ -2518,8 +2512,7 @@ configuration in case when existing Nagios server is used:
 
 Creates new NCG::ConfigGen::Nagios instance. Argument $options is hash
 reference that can contain following elements:
-  BACKUP_INSTANCE - if set SEND_TO_MSG, SEND_TO_DASHBOARD and 
-                    ENABLE_NOTIFICATIONS will be set to 0. This variable is
+  BACKUP_INSTANCE - if set SEND_TO_MSG will be set to 0. This variable is
                     used for setting up backup SAM instance (SAM-1127)
   (default: unset)
 
@@ -2696,9 +2689,6 @@ reference that can contain following elements:
   ROC - name of the region which is being monitored. It will be overwritten
         from the value from SiteInfo module.
   (default: )
-
-  SEND_TO_DASHBOARD - if set handle_service_change will send
-                    notifications to dashboard
 
   SEND_TO_EMAIL - see ENABLE_NOTIFICATIONS
   
