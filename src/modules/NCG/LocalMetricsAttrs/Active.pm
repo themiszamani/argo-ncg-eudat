@@ -331,7 +331,7 @@ sub _analyzeURLs {
         if ($attr =~ /(\S+?:\/\/)?([-_.A-Za-z0-9]+):(\d+)/ ) {
             $self->{SITEDB}->hostAttribute($hostname, "QCG-NOTIFICATION_PORT", $3);
         }
-    }   
+    }
 
     my @unicoreServices = ("unicore6.Gateway", "unicore6.ServiceOrchestrator", "unicore6.StorageManagement", "unicore6.TargetSystemFactory", "unicore6.UVOSAssertionQueryService", "unicore6.WorkflowFactory", "unicore6.StorageFactory");
     foreach my $unicoreService (@unicoreServices) {

@@ -62,6 +62,7 @@ sub new
     $self;
 }
 
+#TODO: Remove LB nodes support. addLBNode(), removeLBNode() have been removed from SiteDB.
 sub getData
 {
     my $self = shift;

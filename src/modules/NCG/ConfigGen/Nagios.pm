@@ -1912,6 +1912,7 @@ sub _genServices {
     $metricCount;
 }
 
+#TODO: Remove LB nodes support. getRealLocalMetrics() has been removed from SiteDB.
 sub _genLBServices {
     my $self = shift;
     my $CONFIG = shift;
@@ -2164,6 +2165,7 @@ sub _getHostGroups {
 # difference between _getHostGroups:
 #  - getRealServices is used for node-* groups
 #  - lbnode-* is used instead of alias-*
+#  TODO: Remove LB nodes support. getRealServices() has been removed from SiteDB.
 sub _getLBHostGroups {
 	my $self = shift;
     my $host = shift || return;
@@ -2369,6 +2371,7 @@ sub getData {
         }
 
         # Iterate through hosts which have LB nodes
+        # TODO: Remove LB nodes. getRealHosts(), LBNodeAddress(), getLBNodes(), hasLBNodes() have been removed from SiteDB.
         if ($self->{INCLUDE_LB_NODE}) {
             foreach my $host ($self->{SITEDB}->getRealHosts) {
                 next if ($self->{VO_HOST_FILTER} && !$self->_hostHasAnyVO($host));
