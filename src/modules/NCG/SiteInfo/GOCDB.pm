@@ -88,6 +88,7 @@ sub getData {
 
     foreach my $site ($doc->getElementsByTagName("SERVICE_ENDPOINT")) {
         my $elem;
+        my $subelem;
         my $hostname;
 
         if ($self->{PRODUCTION}) {
@@ -139,6 +140,22 @@ sub getData {
                         my $value = $child->getNodeValue();
                         if ($value) {
                             $self->{SITEDB}->hostAttribute($hostname, $serviceType."_URL", $value);
+                        }
+                    }
+                }
+                foreach $elem ($site->getElementsByTagName("EXTENSIONS")) {
+                    foreach $subelem ($elem->getElementsByTagName("EXTENSION")) {
+                        my $k = $subelem->getElementsByTagName("KEY");
+                        my $k_item = $k->item(0);
+                        my $k_child = $k_item->getFirstChild;
+                        my $k_value = $k_child->getNodeValue();
+                        my $v = $subelem->getElementsByTagName("VALUE");
+                        my $v_item = $v->item(0);
+                        my $v_child = $v_item->getFirstChild;
+                        my $v_value = $v_child->getNodeValue();
+                        if ($k_value) {
+                            $self->{SITEDB}->hostAttribute($hostname, $serviceType."_".uc$k_value, $v_value);
+                            print "Found extension: $serviceType\.$k_value for host: $hostname \n";
                         }
                     }
                 }
