@@ -68,7 +68,7 @@ sub getData {
     if ($self->{SCOPE}) {
         $url .= '&scope=' . $self->{SCOPE};
     }
-
+    
     my $req = HTTP::Request->new(GET => $url);
     my $res = $self->safeHTTPSCall($ua,$req);
     if (!$res->is_success) {
@@ -90,7 +90,12 @@ sub getData {
         my $elem;
         my $subelem;
         my $hostname;
+        my $id;
+        my $endpointID;
 
+        foreach $id ($site->getElementsByTagName("PRIMARY_KEY")) {
+            $endpointID = $id->getFirstChild->getNodeValue();
+        }
         if ($self->{PRODUCTION}) {
             my $prod;
             foreach $elem ($site->getElementsByTagName("IN_PRODUCTION")) {
@@ -117,7 +122,7 @@ sub getData {
             foreach $elem ($site->getElementsByTagName("SERVICE_TYPE")) {
                 my $value = $elem->getFirstChild->getNodeValue();
                 if ($value) {
-                    $self->{SITEDB}->addService($hostname, $value);
+                    $self->{SITEDB}->addService($hostname, $value, $endpointID);
 
                     $self->{SITEDB}->siteLDAP($hostname) if ($value eq 'Site-BDII');
 
@@ -130,7 +135,7 @@ sub getData {
                     if ($child) {
                         my $value = $child->getNodeValue();
                         if ($value) {
-                            $self->{SITEDB}->hostAttribute($hostname, $serviceType."_HOSTDN", $value);
+                            $self->{SITEDB}->hostAttribute($hostname, $serviceType, $endpointID, $serviceType."_HOSTDN", $value);
                         }
                     }
                 }
@@ -140,7 +145,7 @@ sub getData {
                     if ($child) {
                         my $value = $child->getNodeValue();
                         if ($value) {
-                            $self->{SITEDB}->hostAttribute($hostname, $serviceType."_URL", $value);
+                            $self->{SITEDB}->hostAttribute($hostname, $serviceType, $endpointID, $serviceType."_URL", $value);
                         }
                     }
                 }

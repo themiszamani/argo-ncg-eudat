@@ -64,6 +64,13 @@ sub addHost
     }
 }
 
+#sub addServiceID
+#{
+#   my $self = shift;
+#
+#   $self->debugSub(@_);
+#
+   
 sub addService
 {
     my $self = shift;
@@ -72,18 +79,21 @@ sub addService
 
     my $host = shift || return;
     my $service = shift || return;
+    my $id = shift || return;
 
     if (exists $self->{HOSTS}->{$host}) {
         if (! exists $self->{HOSTS}->{$host}->{SERVICES}->{$service}) {
             $self->{HOSTS}->{$host}->{SERVICES}->{$service} = {};
+            $self->{HOSTS}->{$host}->{SERVICES}->{$service}->{ID}->{$id} = {};
+        } 
+        elsif (! exists $self->{HOSTS}->{$host}->{SERVICES}->{$service}->{ID}->{$id}) {
+            $self->{HOSTS}->{$host}->{SERVICES}->{$service}->{ID}->{$id} = {};
         }
-        
     }
     else {
         $self->warning ("Host $host is not in the list of hosts on site!");
         return;
     }
-
     1;
 }
 
@@ -558,15 +568,19 @@ sub hostAttribute
     $self->debugSub(@_);
 
     my $host = shift || return;
+    my $serviceType = shift || return;
+    my $id = shift || return;
     my $attribute = shift || return;
     my $value = shift;
 
     if (exists $self->{HOSTS}->{$host}) {
-        $self->{HOSTS}->{$host}->{ATTRIBUTES}->{$attribute}->{VALUE} = $value if (defined $value);
-        if (!exists $self->{HOSTS}->{$host}->{ATTRIBUTES}->{$attribute}->{VALUE}) {
+        $self->{HOSTS}->{$host}->{SERVICES}->{$serviceType}->{ID}->{$id}->{ATTRIBUTES}->{$attribute}->{VALUE} = $value if (defined $value);
+
+        #TODO: Revisit this
+        if (! exists $self->{HOSTS}->{$host}->{SERVICES}->{$serviceType}->{ID}->{$id}->{ATTRIBUTES}->{$attribute}->{VALUE}) {
             return $self->globalAttribute($attribute);
         } else {
-            return $self->{HOSTS}->{$host}->{ATTRIBUTES}->{$attribute}->{VALUE};
+            return $self->{HOSTS}->{$host}->{SERVICES}->{$serviceType}->{ID}->{$id}->{ATTRIBUTES}->{$attribute}->{VALUE};
         }
     } else {
         $self->warning("Host $host is not in the list of hosts on site!");

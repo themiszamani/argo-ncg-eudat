@@ -23,7 +23,6 @@ use Socket;
 use Date::Format;
 use Archive::Tar;
 use File::Path;
-
 use vars qw(@ISA);
 
 @ISA=("NCG::ConfigGen");
@@ -157,10 +156,6 @@ sub new
 
     if (! defined $self->{MULTI_SITE_HOSTS}) {
         $self->{MULTI_SITE_HOSTS} = {};
-    }
-
-    unless (defined $self->{INCLUDE_LB_NODE}) {
-        $self->{INCLUDE_LB_NODE} = 0;
     }
 
     if (! $self->_checkProbesType) {
@@ -889,21 +884,6 @@ sub _getHostCheckType {
 	return $checkType;
 }
 
-sub _getLBHostCheckType {
-	my $self = shift;
-	my $hostname = shift || return;
-	my $lbaddress = shift || return;
-	my $checkType;
-
-    if ( $self->{CHECK_HOSTS} ) {
-        $checkType = "ncg_check_host_alive";
-    } else {
-        $checkType = "ncg_check_host_dummy";
-    }
-
-	return $checkType;
-}
-
 sub _genHostGroup {
     my $self = shift;
     my $CONFIG = shift;
@@ -1054,22 +1034,26 @@ sub _genServiceTemplates {
 sub _getAttributeValue {
     my $self = shift;
     my $host = shift;
+    my $servicetype = shift;
+    my $id = shift;
     my $attr = shift;
     my $vo = shift;
     my $voFqan = shift;
 
-    my $value = $self->{SITEDB}->hostAttribute($host, $attr);
-    my $voValue = $self->{SITEDB}->hostAttributeVO($host, $attr, $voFqan);
-    $voValue = $self->{SITEDB}->hostAttributeVO($host, $attr, $vo) if (!$voValue && !$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{FAKE_FQAN});
-    $value = $voValue if ($voValue);
-    $value = $vo if ($attr eq 'VONAME');
-    $value = $voFqan if ($attr eq 'VO_FQAN' && !$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{FAKE_FQAN});
-    $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{PROXY_FILE} if ($attr eq 'X509_USER_PROXY');
-    $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_USER} if ($attr eq 'MYPROXY_USER' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_USER});
-    $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_NAME} if ($attr eq 'MYPROXY_NAME' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_NAME});
-    $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_CERT} if ($attr eq 'ROBOT_CERT' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_CERT});
-    $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_KEY} if ($attr eq 'ROBOT_KEY' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_KEY});
+    my $value = $self->{SITEDB}->hostAttribute($host, $servicetype, $id, $attr);
 
+    if ($vo || $voFqan) {
+        my $voValue = $self->{SITEDB}->hostAttributeVO($host, $attr, $voFqan);
+        $voValue = $self->{SITEDB}->hostAttributeVO($host, $attr, $vo) if (!$voValue && !$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{FAKE_FQAN});
+        $value = $voValue if ($voValue);
+        $value = $vo if ($attr eq 'VONAME');
+        $value = $voFqan if ($attr eq 'VO_FQAN' && !$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{FAKE_FQAN});
+        $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{PROXY_FILE} if ($attr eq 'X509_USER_PROXY');
+        $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_USER} if ($attr eq 'MYPROXY_USER' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_USER});
+        $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_NAME} if ($attr eq 'MYPROXY_NAME' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{MYPROXY_NAME});
+        $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_CERT} if ($attr eq 'ROBOT_CERT' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_CERT});
+        $value = $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_KEY} if ($attr eq 'ROBOT_KEY' && $self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{ROBOT_KEY});
+    }
     # ARC hacks, ask them to enable definition without -O key=value
     if ($attr eq 'ARC_GOOD_SES') {
         my $seFile = '/var/lib/gridprobes/';
@@ -1091,6 +1075,8 @@ sub _getAttributeValue {
 sub _getMetricOptionString {
     my $self = shift;
     my $host = shift;
+    my $servicetype = shift;
+    my $id = shift;
     my $metric = shift;
     my $vo = shift;
     my $voFqan = shift;
@@ -1113,6 +1099,7 @@ sub _getMetricOptionString {
             return;
         }
         foreach my $attr (keys %$fileAttributes) {
+            #FIXME: Update _getAttributeValue parameteres
             my $value = $self->_getAttributeValue($host, $attr, $vo, $voFqan);
             next unless($value);
 
@@ -1129,8 +1116,9 @@ sub _getMetricOptionString {
     }
     
     foreach my $attr (keys %$attributes) {
-        next if ($attr eq 'METRIC_CONFIG_FILE');
-        my $value = $self->_getAttributeValue($host, $attr, $vo, $voFqan);
+        next if ($attr eq 'METRIC_CONFIG_FILE'); 
+        my $value = $self->_getAttributeValue($host, $servicetype, $id, $attr, $vo, $voFqan);
+
         next unless($value);
 
         $options .= $attributes->{$attr} . ' '  . $value . ' ';
@@ -1524,18 +1512,10 @@ sub _genNativeServices {
     my $voFqan = shift;
     my $voRemovedMetrics = shift;
     my $gridProxyServer = shift;
-    my $lbnode = shift;
     my $metricName = $metric;
     my $nrpecommand = $host . "_" . $metric;
-    my $hostActual;
     my $sitename = $self->{SITEDB}->siteName();
-    
-    if ($lbnode) {
-        $hostActual = $lbnode;
-    } else {
-        $hostActual = $host;
-    }
-
+  
     if ($metricVo) {
         $metricName .= "-$voFqan";
         $nrpecommand .= "_".$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{VO_FQAN_TIDY};
@@ -1556,7 +1536,7 @@ sub _genNativeServices {
     if ($passive) {
         if (! $self->_genWlcgServicePassive($CONFIG,
                                 $templates->{WLCGPASSIVE},
-                                $hostActual,
+                                $host,
                                 $metricName,
                                 $parent,
                                 $contactgroup,
@@ -1584,13 +1564,13 @@ sub _genNativeServices {
                 $command = "sudo -u $sudo " . $command;
             }
             if (!$self->{SITEDB}->metricFlag($host,$metric, "NOHOSTNAME")) {
-                $command .= " -H $hostActual";
+                $command .= " -H $host";
             }
             if ($isNRPE) {
                 $nrpeHost = $self->{NRPE_UI};
                 $nrpeConfig = $NRPE_CONFIG;
             } else {
-                $nrpeHost = $hostActual;
+                $nrpeHost = $host;
                 if (!$HOST_NRPE_CONFIG) {
                     $nrpeConfig = $NRPE_CONFIG;
                 } else {
@@ -1602,7 +1582,7 @@ sub _genNativeServices {
                                         $nrpeConfig,
                                         $templates->{NATIVENRPE},
                                         $templates->{NRPE_NATIVECOMMANDS},
-                                        $hostActual,
+                                        $host,
                                         $metric,
                                         $metricName,
                                         $nrpecommand,
@@ -1638,7 +1618,7 @@ sub _genNativeServices {
             }
             if (! $self->_genNativeService($CONFIG,
                                         $templates->{NATIVE},
-                                        $hostActual,
+                                        $host,
                                         $metric,
                                         $metricName,
                                         $probe,
@@ -1676,10 +1656,10 @@ sub _genNativeServices {
             if ($self->{SITEDB}->metricFlag($host, $dep, "VO")) {
                 $dep .= "-$voFqan";
             }
-            $host2 = $hostActual;
+            $host2 = $host;
         }
 
-        if (! $self->_genServiceDependency($CONFIG, $hostActual, $metricName, $host2, $dep) ) {
+        if (! $self->_genServiceDependency($CONFIG, $host, $metricName, $host2, $dep) ) {
             return;
         }
     }
@@ -1691,7 +1671,6 @@ sub _getLocalServiceGroups {
     my $host = shift || return;
     my $metric = shift || return;
     my $servicegroups = shift;
-    my $lbnode = shift;
     my $metricSgroup;
     my $sitename = $self->{SITEDB}->siteName();
 
@@ -1708,7 +1687,6 @@ sub _getLocalServiceGroups {
     if ($self->{SITEDB}->metricFlag($host, $metric, "PASSIVE")) {
         my $parent = $self->{SITEDB}->metricParent($host, $metric) || 'no';
         my $address = $host;
-        $address = $lbnode if ($lbnode);
 
         $metricSgroup .= ", ${parent}_${address}";
         $servicegroups->{"${parent}_${address}"} = 1;
@@ -1799,54 +1777,93 @@ sub _genServices {
                 $probe = $self->{SITEDB}->metricProbe($host, $metric)
             }
 
+            #Leave the VO things for now
+            foreach my $srv (keys %{$self->{SITEDB}->{HOSTS}->{$host}->{SERVICES}}) {
+                if ($self->{SITEDB}->{HOSTS}->{$host}->{METRICS}->{$metric}->{SERVICES}->{$srv}) {
+                    foreach my $srvid (keys %{$self->{SITEDB}->{HOSTS}->{$host}->{SERVICES}->{$srv}->{ID}}) {
+                        my $options = $self->_getMetricOptionString($host, $srv, $srvid, $metric);
+                        my $metricSgroupLocal = $metricSgroup;
+                        $self->verbose ("    metric: $metric");
+                        if ($self->_genNativeServices (
+                                        $CONFIG,
+                                        $NRPE_CONFIG,
+                                        $HOST_NRPE_CONFIG,
+                                        $host,
+                                        $templates,
+                                        $metric,
+                                        $probe,
+                                        $contactgroupLocal,
+                                        $metricSgroupLocal,
+                                        $isNrpe,
+                                        $passive,
+                                        $parent,
+                                        $obsess,
+                                        $custom,
+                                        $config,
+                                        $options,
+                                        "",
+                                        $metricDocUrl,
+                                        "",
+                                        $self->{SITEDB}->metricFlag($host, $metric, "PNP") || '',
+                                        "",
+                                        "",
+                                        "",
+                                        ""
+                                        ) ) {
+                                 $metricCount++;
+                         } else {
+                             return;
+                         }
+                    }
+                }
+            }
+#FIXME
             foreach my $vo (keys %{$self->{VOS}}) {
                 foreach my $voFqan (keys %{$self->{VOS}->{$vo}->{FQAN}}) {
 
                     next if (exists $voRemovedMetrics->{VO}->{$vo}->{$metric} ||
                              exists $voRemovedMetrics->{VO_FQAN}->{$voFqan}->{$metric});
     
-                    my $options = $self->_getMetricOptionString($host, $metric, $vo, $voFqan, $self->{NRPE_UI});
-                    my $metricSgroupLocal = $metricSgroup;
                     if ($metricVo) {
+                        my $options = $self->_getMetricOptionString($host, $metric, $vo, $voFqan, $self->{NRPE_UI});
+                        my $metricSgroupLocal = $metricSgroup;
                         $self->verbose ("    metric: $metric-$voFqan");
                         $metricSgroupLocal .= ", VO_" . $vo . ", " . $voFqan;
                         $servicegroups->{$voFqan} = 1;
                         $servicegroups->{"VO_$vo"} = 1;
                         $custom->{"_vo"} = $vo;
                         $custom->{"_vo_fqan"} = $voFqan;
-                    } else {
-                        $self->verbose ("    metric: $metric");
-                    }
-                    if ($self->_genNativeServices (
-                                    $CONFIG,
-                                    $NRPE_CONFIG,
-                                    $HOST_NRPE_CONFIG,
-                                    $host,
-                                    $templates,
-                                    $metric,
-                                    $probe,
-                                    $contactgroupLocal,
-                                    $metricSgroupLocal,
-                                    $isNrpe,
-                                    $passive,
-                                    $parent,
-                                    $obsess,
-                                    $custom,
-                                    $config,
-                                    $options,
-                                    "",
-                                    $metricDocUrl,
-                                    $metricVo,
-                                    $self->{SITEDB}->metricFlag($host, $metric, "PNP") || '',
-                                    $vo,
-                                    $voFqan,
-                                    $voRemovedMetrics,
-                                    $gridProxyServer) ) {
-                        $metricCount++;
-                        # if this is not VO-dependent metric get out after first pass
-                        last unless ($metricVo);
-                    } else {
-                        return;
+                        if ($self->_genNativeServices (
+                                        $CONFIG,
+                                        $NRPE_CONFIG,
+                                        $HOST_NRPE_CONFIG,
+                                        $host,
+                                        $templates,
+                                        $metric,
+                                        $probe,
+                                        $contactgroupLocal,
+                                        $metricSgroupLocal,
+                                        $isNrpe,
+                                        $passive,
+                                        $parent,
+                                        $obsess,
+                                        $custom,
+                                        $config,
+                                        $options,
+                                        "",
+                                        $metricDocUrl,
+                                        $metricVo,
+                                        $self->{SITEDB}->metricFlag($host, $metric, "PNP") || '',
+                                        $vo,
+                                        $voFqan,
+                                        $voRemovedMetrics,
+                                        $gridProxyServer) ) {
+                            $metricCount++;
+                            # if this is not VO-dependent metric get out after first pass
+                            last unless ($metricVo);
+                        } else {
+                            return;
+                        }
                     }
 
                 }
@@ -1911,143 +1928,6 @@ sub _genServices {
 
     $metricCount;
 }
-
-#TODO: Remove LB nodes support. getRealLocalMetrics() has been removed from SiteDB.
-sub _genLBServices {
-    my $self = shift;
-    my $CONFIG = shift;
-    my $lbnode = shift;
-    my $host = shift;
-    my $contactgroup = shift;
-    my $servicegroups = shift;
-    my $NRPE_CONFIG = shift;
-    my $HOST_NRPE_CONFIG = shift;
-    my $sitename = $self->{SITEDB}->siteName();
-    my $servicegroup;
-    my $metricCount = 0;
-    my $gridProxyServer;
-    #if ($self->{NRPE_UI}) {
-    #    $gridProxyServer = $self->{NRPE_UI};
-    #} else {
-        $gridProxyServer = $self->{NAGIOS_SERVER};
-    #}
-
-    if ($self->{PROBES_TYPE_FLAG}->{local} || $sitename eq 'nagios') {
-        my $templates = {};
-        if (!$self->_getNativeServiceTemplates ($templates)) {
-            return;
-        }
-
-        # first run, let's throw out metrics which don't support VO
-        my $voRemovedMetrics = {};
-        foreach my $metric ($self->{SITEDB}->getRealLocalMetrics($host)) {
-            if ($self->{SITEDB}->metricFlag($host, $metric, "VO")) {
-                foreach my $vo (keys %{$self->{VOS}}) {
-                    if (!$self->{SITEDB}->hasVO($host, $vo, $metric)) {
-                        $voRemovedMetrics->{VO}->{$vo}->{$metric} = 1;
-                        next;
-                    }
-                    foreach my $voFqan (keys %{$self->{VOS}->{$vo}->{FQAN}}) {
-                        if (!$self->{SITEDB}->hasMetricVoFqan($host, $metric, $vo, $voFqan,$self->{VOS}->{$vo}->{FQAN}->{$voFqan}->{DEFAULT_FQAN})) {
-                            $voRemovedMetrics->{VO_FQAN}->{$voFqan}->{$metric} = 1;
-                        }
-                    }
-                }
-
-            }
-        }
-
-        foreach my $metric ($self->{SITEDB}->getRealLocalMetrics($host)) {
-            my $config;
-            my $parent;
-            my $probe;
-            my $passive = $self->{SITEDB}->metricFlag($host, $metric, "PASSIVE");
-            my $metricVo = $self->{SITEDB}->metricFlag($host, $metric, "VO");
-
-            # let's first check if we need to do anything with this metric on LB node
-            if ($passive) {
-                $parent = $self->{SITEDB}->metricParent($host, $metric);
-                if ($parent) {
-                    if ($self->{SITEDB}->metricFlag($host, $parent, "NOLBNODE")) {
-                        next;
-                    }
-                    $config = $self->{SITEDB}->metricConfig($host, $parent);
-                    next unless ($self->{SITEDB}->hasMetric($host, $metric));
-                } else {
-                    $config = $self->{SITEDB}->defaultConfig();
-                    $parent = 'no';
-                }                
-            } else {
-                if ($self->{SITEDB}->metricFlag($host, $metric, "NOLBNODE")) {
-                    next;
-                }
-                $config = $self->{SITEDB}->metricConfig($host, $metric);
-                $probe = $self->{SITEDB}->metricProbe($host, $metric)
-            }
-
-            my $metricDocUrl = $self->{SITEDB}->metricDocUrl($host, $metric);
-            my $metricSgroup = "";
-            my $isNrpe = $self->{NRPE_UI} && $self->{SITEDB}->metricFlag($host, $metric, "NRPE");
-
-            $metricSgroup = $self->_getLocalServiceGroups($host, $metric, $servicegroups, $lbnode);
-
-            foreach my $vo (keys %{$self->{VOS}}) {
-                foreach my $voFqan (keys %{$self->{VOS}->{$vo}->{FQAN}}) {
-
-                    next if (exists $voRemovedMetrics->{VO}->{$vo}->{$metric} ||
-                         exists $voRemovedMetrics->{VO_FQAN}->{$voFqan}->{$metric});
-
-                    my $options = $self->_getMetricOptionString($host, $metric, $vo, $voFqan, $self->{NRPE_UI});
-                    my $metricSgroupLocal = $metricSgroup;
-                    if ($metricVo) {
-                        $self->verbose ("    metric: $metric-$voFqan");
-                        $metricSgroupLocal .= ", VO_" . $vo . ", " . $voFqan;
-                        $servicegroups->{$voFqan} = 1;
-                        $servicegroups->{"VO_$vo"} = 1;
-                    } else {
-                        $self->verbose ("    metric: $metric");
-                    }
-                    if ($self->_genNativeServices (
-                                    $CONFIG,
-                                    $NRPE_CONFIG,
-                                    $HOST_NRPE_CONFIG,
-                                    $host,
-                                    $templates,
-                                    $metric,
-                                    $probe,
-                                    $contactgroup,
-                                    $metricSgroupLocal,
-                                    $isNrpe,
-                                    $passive,
-                                    $parent,
-                                    0,
-                                    "",
-                                    $config,
-                                    $options,
-                                    "",
-                                    $metricDocUrl,
-                                    $metricVo,
-                                    $self->{SITEDB}->metricFlag($host, $metric, "PNP") || '',
-                                    $vo,
-                                    $voFqan,
-                                    $voRemovedMetrics,
-                                    $gridProxyServer,
-                                    $lbnode) ) {
-                        $metricCount++;
-                        # if this is not VO-dependent metric get out after first pass
-                        last unless ($metricVo);
-                    } else {
-                        return;
-                    }
-                }
-                last unless ($metricVo);
-            }
-        }
-    }
-
-    $metricCount;
-}
-
 
 sub _genServicesHeader {
 	my $self = shift;
@@ -2158,50 +2038,6 @@ sub _getHostGroups {
         $hostgroups->{"alias-$alias"}->{fullname} = "Aliases of host $alias";
         $hostgroups->{"alias-$alias"}->{members}->{$host} = 1;
     }
-
-    $hostgroup;
-}
-
-# difference between _getHostGroups:
-#  - getRealServices is used for node-* groups
-#  - lbnode-* is used instead of alias-*
-#  TODO: Remove LB nodes support. getRealServices() has been removed from SiteDB.
-sub _getLBHostGroups {
-	my $self = shift;
-    my $host = shift || return;
-    my $hostgroups = shift;
-    my $hostgroup;
-    my $sitename = $self->{SITEDB}->siteName();
-    my $country = $self->{SITEDB}->siteCountry();
-
-    # each host belongs to site hostgroup
-    # (this hostgroup is useful on regional level Nagios)
-    $hostgroup = "site-$sitename";
-    $hostgroups->{"site-$sitename"}->{fullname} = "Site $sitename";
-    $hostgroups->{"site-$sitename"}->{members}->{$host} = 1;
-
-    if ($country) {
-        $hostgroup .= ", $country";
-        $hostgroups->{"$country"}->{fullname} = "$country";
-        $hostgroups->{"$country"}->{members}->{$host} = 1;
-    }
-
-    foreach my $grid ($self->{SITEDB}->getGrids) {
-        $hostgroup .= ", $grid";
-        $hostgroups->{"$grid"}->{fullname} = "$grid";
-        $hostgroups->{"$grid"}->{members}->{$host} = 1;
-    }
-
-    # for each service group is generated
-    foreach my $service ($self->{SITEDB}->getRealServices($host)) {
-        $hostgroup .= ", node-$service";
-        $hostgroups->{"node-$service"}->{fullname} = "$service nodes";
-        $hostgroups->{"node-$service"}->{members}->{$host} = 1;
-    }
-
-    $hostgroup .= ", lbnode-$host";
-    $hostgroups->{"lbnode-$host"}->{fullname} = "Load balanced nodes of host $host";
-    $hostgroups->{"lbnode-$host"}->{members}->{$host} = 1;
 
     $hostgroup;
 }
@@ -2368,67 +2204,6 @@ sub getData {
                 }
             }
             close($HOST_NRPE_CONFIG) if ($HOST_NRPE_CONFIG);
-        }
-
-        # Iterate through hosts which have LB nodes
-        # TODO: Remove LB nodes. getRealHosts(), LBNodeAddress(), getLBNodes(), hasLBNodes() have been removed from SiteDB.
-        if ($self->{INCLUDE_LB_NODE}) {
-            foreach my $host ($self->{SITEDB}->getRealHosts) {
-                next if ($self->{VO_HOST_FILTER} && !$self->_hostHasAnyVO($host));
-                
-                if ($self->{SITEDB}->hasLBNodes($host)) {
-                    my $contactgroup = $self->_getContactGroups ($host);
-                    my $hasMetricNRPEService = $self->{SITEDB}->hasMetricNRPEService($host);
-
-                    # Iterate through LB nodes
-                    foreach my $lbnode ($self->{SITEDB}->getLBNodes($host)) {
-                        my $HOST_NRPE_CONFIG;
-                        if (exists $self->{MULTI_SITE_HOSTS}->{$lbnode}) {
-                            $self->verbose("  LB node $lbnode is already generated for site " . $self->{MULTI_SITE_HOSTS}->{$lbnode});
-                            next;
-                        }
-                        $self->verbose("  LB node: $lbnode");
-
-                        if ($hasMetricNRPEService) {
-                            $HOST_NRPE_CONFIG = $self->_genNrpeHeader($lbnode);
-                            if (!$HOST_NRPE_CONFIG) {
-                                return;
-                            }
-                            $self->_genNrpe($SERVICE_CONFIG, $lbnode);
-                        }
-
-                        my $serviceNo = $self->_genLBServices ($SERVICE_CONFIG, $lbnode, $host, $contactgroup, $servicegroups, $NRPE_CONFIG, $HOST_NRPE_CONFIG);
-                        if (! defined $serviceNo ) {
-                            $self->_closeFDs($HOST_CONFIG, $SERVICE_CONFIG, $NRPE_CONFIG);
-                            close($HOST_NRPE_CONFIG) if ($hasMetricNRPEService);
-                            return;
-                        } else {
-                            if ($self->{INCLUDE_EMPTY_HOSTS} || $serviceNo gt 0) {
-                                $self->{MULTI_SITE_HOSTS}->{$lbnode} = $sitename;
-                                my $hostgroup = $self->_getLBHostGroups ($host, $hostgroups);
-                                if ($self->{INCLUDE_HOSTS}) {
-                                    my $lbaddress = $self->{SITEDB}->LBNodeAddress($host, $lbnode);
-                                    my $checktype = $self->_getLBHostCheckType($host,$lbaddress) || next;
-                                    if (! $self->_genHost ($HOST_CONFIG,
-                                                     $lbnode,
-                                                     $lbaddress,
-                                                     $checktype,
-                                                     $contactgroup,
-                                                     $hostgroup,
-                                                     $lbnode,
-                                                     $parentName) ) {
-                                        $self->_closeFDs($HOST_CONFIG, $SERVICE_CONFIG, $NRPE_CONFIG);
-                                        close($HOST_NRPE_CONFIG) if ($hasMetricNRPEService);
-                                        return;
-                                    }
-                                    $hostNo++;
-                                }
-                            }
-                        }
-                        close($HOST_NRPE_CONFIG) if ($hasMetricNRPEService);
-                    }
-                }
-            }
         }
 
         # generate parent if any host was generated
