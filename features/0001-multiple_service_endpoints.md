@@ -33,7 +33,8 @@ Use a dedicated service endpoint entry on GOCDB for each case
 
 ##### Example of one host which belongs to two different service types:
 
-```'myhost.foo.gr' => {
+```
+'myhost.foo.gr' => {
   'HOSTNAME' => 'myhost.foo.gr',
   'SERVICES' => {
     'myservice.foo' => {
@@ -65,9 +66,11 @@ Use a dedicated service endpoint entry on GOCDB for each case
   'ADDRESS' => 'ip_address'
 }
 ```
+
 ##### Example of two same service endpoints (same pairs of host/service_type):
 
-```'myhost.foo.gr' => {
+```
+'myhost.foo.gr' => {
   'HOSTNAME' => 'myhost.foo.gr',
   'SERVICES' => {
     'myservice.foo' => {
@@ -92,6 +95,8 @@ Use a dedicated service endpoint entry on GOCDB for each case
   'ADDRESS' => 'ip_address'
 }
 ```
+
+
 # Drawbacks
 [drawbacks]: #drawbacks
 
