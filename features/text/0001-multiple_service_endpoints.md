@@ -108,7 +108,7 @@ define service{
         service_description             project.myservice.foo-TCP-ID
                 _service_uri     myhost.foo.gr
         _metric_name     project.myservice.foo-TCP-ID
-        _service_flavour     yservice.foo
+        _service_flavour     myservice.foo
         [...]
 }
 define service{
@@ -118,7 +118,7 @@ define service{
         service_description             project.myservice.foo-TCP-ID
                 _service_uri     myhost.foo.gr
         _metric_name     project.myservice.foo-TCP-ID
-        _service_flavour     yservice.foo
+        _service_flavour     myservice.foo
         [...]
 }
 ```
