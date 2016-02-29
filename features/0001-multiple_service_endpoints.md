@@ -20,18 +20,18 @@ NCG should be able to handle such cases.
 
 ##### Use case: Support of multiple service types (even same ones) per endpoint with different attributes, extensions and service groups. E.g: 
 
+```
 service endpoint: host => myhost.foo.gr/service_type => my_service_type_1 , URL => https://myhost.foo.gr/api/v2/pointer/1 , service_group => SERVICE1
 
 service endpoint: host => myhost.foo.gr/service_type => my_service_type_1 , URL => https://myhost.foo.gr/api/v2/pointer/2 , service_group => SERVICE1_FOO
+```
 
 ###### Use a dedicated service endpoint entry on GOCDB for each case.
 
 - Separation of attributes, extensions, groups per endpoint using the primary_key of each entry. To retrieve the primary key we parse the XML response from the GOCDB API
 and store the value of the XML element "PRIMARY_KEY".
 
-- Ability to identify which service endpoint belongs to which service group. Same primary keys for a service group entry and a service endpoint.
-
-The following example is a representation of the strcture we use to store the information we gather from the GOCDB for each service endpoint.
+The following example is a representation of the structure we use to store the information we gather from the GOCDB for each service endpoint.
 
 ##### Example of one host which belongs to two different service types:
 
