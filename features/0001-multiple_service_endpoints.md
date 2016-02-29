@@ -11,7 +11,7 @@ Add support for multiple service types per host on NCG.
 [motivation]: #motivation
 
 There are some cases in which we need to assign nagios checks on multiple service types that are running on the same host.
-Those checks might have different parameters for each compination of host/service_type and should be retrieved from GOCDB accordingly.
+Those checks might have different parameters for each combination of host/service_type and should be retrieved from GOCDB accordingly.
 NCG should be able to handle such cases.
 
 
