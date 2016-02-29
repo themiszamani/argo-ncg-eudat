@@ -3,21 +3,22 @@
 
 # Summary
 [summary]: #summary
+
 Add support for multiple service types per host on NCG.
 
 
 # Motivation
 [motivation]: #motivation
 
-There are some cases that we need to assign nagios checks on multiple service types that are running on the same host.
-Those checks might have different parameters for each compination of host/service_type  that should be retrieved from GOCDB accordingly.
+There are some cases in which we need to assign nagios checks on multiple service types that are running on the same host.
+Those checks might have different parameters for each compination of host/service_type and should be retrieved from GOCDB accordingly.
 NCG should be able to handle such cases.
 
 
 # Detailed design
 [design]: #detailed-design
 
-Use case: Support of multiple service types (even same ones) per endpoint with different attributes, extensions and service groups. E.g: 
+##### Use case: Support of multiple service types (even same ones) per endpoint with different attributes, extensions and service groups. E.g: 
 
 service endpoint: host => myhost.foo.gr/service_type => my_service_type_1 , URL => https://myhost.foo.gr/api/v2/pointer/1 , service_group => SERVICE1
 
@@ -30,6 +31,67 @@ Use a dedicated service endpoint entry on GOCDB for each case
 - Ability to identify which service endpoint belongs to which service group. Same primary keys for a service group entry and a service endpoint.
 
 
+##### Example of one host which belongs to two different service types:
+
+```'myhost.foo.gr' => {
+  'HOSTNAME' => 'myhost.foo.gr',
+  'SERVICES' => {
+    'myservice.foo' => {
+      'ID' => {
+        '25F8' => {
+          'ATTRIBUTES' => {
+            'myservice.foo_URL' => {
+              'VALUE' => 'http://myhost.foo.gr:2811'
+            },
+            'myhost.foo.gr_HOSTDN' => {
+              'VALUE' => 'CERTIFICATE_DN'
+            }
+          }
+        }
+      }
+    },
+    'myservice.foo2' => {
+      'ID' => {
+        '45V3' => {
+          'ATTRIBUTES' => {
+            'myservice.foo2_URL' => {
+              'VALUE' => 'https://myhost.foo.gr:1247'
+            }
+          }
+        }
+      }
+    }
+  },
+  'ADDRESS' => 'ip_address'
+}
+```
+##### Example of two same service endpoints (same pairs of host/service_type):
+
+```'myhost.foo.gr' => {
+  'HOSTNAME' => 'myhost.foo.gr',
+  'SERVICES' => {
+    'myservice.foo' => {
+      'ID' => {
+        '352DF8' => {
+          'ATTRIBUTES' => {
+            'myservice.foo_URL' => {
+              'VALUE' => 'https://myhost.foo.gr/api/v2/pointer/foo'
+            }
+          }
+        },
+        'AFTV42' => {
+          'ATTRIBUTES' => {
+            'myservice.foo_URL' => {
+              'VALUE' => 'https://myhost.foo.gr/api/v2/pointer/'
+            }
+          }
+        }
+      }
+    }
+  },
+  'ADDRESS' => 'ip_address'
+}
+```
 # Drawbacks
 [drawbacks]: #drawbacks
 
