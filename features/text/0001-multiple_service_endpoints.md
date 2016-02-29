@@ -33,7 +33,7 @@ and store the value of the XML element "PRIMARY_KEY".
 
 The following example is a representation of the structure we use to store the information we gather from the GOCDB for each service endpoint.
 
-##### Example of one host which belongs to two different service types:
+##### 1) Example of one host which belongs to two different service types:
 
 ```
 'myhost.foo.gr' => {
@@ -69,7 +69,7 @@ The following example is a representation of the structure we use to store the i
 }
 ```
 
-##### Example of two same service endpoints (same pairs of host/service_type):
+##### 2) Example of two same service endpoints (same pairs of host/service_type):
 
 ```
 'myhost.foo.gr' => {
@@ -98,6 +98,32 @@ The following example is a representation of the structure we use to store the i
 }
 ```
 
+The service_type ID can be used also in the Nagios service configurations (as a unique indentifier in service_description) in order to distinguish multiple same service checks for a specific host. E.g:
+
+```
+define service{
+        [...]
+        host_name                       myhost.foo.gr
+        servicegroups                   local, SITE_MYSITE_myservice.foo, SERVICE_myservice.foo
+        service_description             project.myservice.foo-TCP-ID
+                _service_uri     myhost.foo.gr
+        _metric_name     project.myservice.foo-TCP-ID
+        _service_flavour     yservice.foo
+        [...]
+}
+define service{
+        [...]
+        host_name                       myhost.foo.gr
+        servicegroups                   local, SITE_MYSITE_myservice.foo, SERVICE_myservice.foo
+        service_description             project.myservice.foo-TCP-ID
+                _service_uri     myhost.foo.gr
+        _metric_name     project.myservice.foo-TCP-ID
+        _service_flavour     yservice.foo
+        [...]
+}
+```
+
+In the example above we have two same service_endpoints (host/service_type) that we want to monitor by using one specific check with different parameters. In order to prevent Nagios handle this as a duplicate definition, we include the ID in the service_description variable.
 
 # Drawbacks
 [drawbacks]: #drawbacks
