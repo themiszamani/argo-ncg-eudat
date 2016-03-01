@@ -21,6 +21,8 @@ NCG should be able to handle such cases.
 ##### Use case: Support of multiple service types (even same ones) per endpoint with different attributes, extensions and service groups. E.g: 
 
 ```
+service endpoint: host => epic.grnet.gr/service_type => b2handle.handle.resolver , URL => https://epic.grnet.gr , service_group => B2HANDLE
+
 service endpoint: host => epic.grnet.gr/service_type => b2handle.handle.api , URL => https://epic.grnet.gr/api/v2/handles/foo , service_group => B2HANDLE
 
 service endpoint: host => epic.grnet.gr/service_type => b2handle.handle.api , URL => https://epic.grnet.gr/api/v2/handles/ , service_group => B2HANDLE
@@ -51,7 +53,12 @@ The following example is a representation of the structure we use to store the i
             }
           },
           'EXTENSIONS' => {
-             [...]
+            'prefix' => {
+              'VALUE' => '234677'
+            },
+            'username' => {
+              'VALUE' => 'user'
+            }
           }
         }
       }
@@ -68,7 +75,7 @@ The following example is a representation of the structure we use to store the i
       }
     }
   },
-  'ADDRESS' => 'ip_address'
+  'ADDRESS' => '62.217.127.244'
 }
 ```
 
@@ -97,7 +104,7 @@ The following example is a representation of the structure we use to store the i
       }
     }
   },
-  'ADDRESS' => 'ip_address'
+  'ADDRESS' => '62.217.127.244'
 }
 ```
 
@@ -127,6 +134,9 @@ define service{
 ```
 
 In the example above we have two same service_endpoints (host/service_type) that we want to monitor by using one specific check with different parameters. In order to prevent Nagios handle this as a duplicate definition we include the ID in the `service_description` variable. The ID refers to the GOCDB entry with the specific parameter eg. assuming that we follow the example 2 we gave a few lines above the ID in the first definition would be `352DF8` whereas the second one whould be `AFTV42`.
+
+###### Note
+For backwards compatibility we follow the naming convention <serviceType_PARAMETER-NAME> to store the GOCDB attributes (eg. `b2handle.handle.api_URL` , `b2handle.handle.api_HOSTDN` ). However this is subject to change in future releases.
 
 # Drawbacks
 [drawbacks]: #drawbacks
