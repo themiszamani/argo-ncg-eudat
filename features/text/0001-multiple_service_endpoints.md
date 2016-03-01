@@ -21,44 +21,47 @@ NCG should be able to handle such cases.
 ##### Use case: Support of multiple service types (even same ones) per endpoint with different attributes, extensions and service groups. E.g: 
 
 ```
-service endpoint: host => myhost.foo.gr/service_type => my_service_type_1 , URL => https://myhost.foo.gr/api/v2/pointer/1 , service_group => SERVICE1
+service endpoint: host => epic.grnet.gr/service_type => b2handle.handle.api , URL => https://epic.grnet.gr/api/v2/handles/foo , service_group => B2HANDLE
 
-service endpoint: host => myhost.foo.gr/service_type => my_service_type_1 , URL => https://myhost.foo.gr/api/v2/pointer/2 , service_group => SERVICE1_FOO
+service endpoint: host => epic.grnet.gr/service_type => b2handle.handle.api , URL => https://epic.grnet.gr/api/v2/handles/ , service_group => B2HANDLE
 ```
 
 ###### Use a dedicated service endpoint entry on GOCDB for each case.
 
 - Separation of attributes, extensions, groups per endpoint using the primary_key of each entry. To retrieve the primary key we parse the XML response from the GOCDB API
-and store the value of the XML element "PRIMARY_KEY".
+and store the value of the XML element `PRIMARY_KEY`.
 
 The following example is a representation of the structure we use to store the information we gather from the GOCDB for each service endpoint.
 
 ##### 1) Example of one host which belongs to two different service types:
 
 ```
-'myhost.foo.gr' => {
-  'HOSTNAME' => 'myhost.foo.gr',
+'epic.grnet.gr' => {
+  'HOSTNAME' => 'epic.grnet.gr',
   'SERVICES' => {
-    'myservice.foo' => {
+    'b2handle.handle.api' => {
       'ID' => {
         '25F8' => {
           'ATTRIBUTES' => {
-            'myservice.foo_URL' => {
-              'VALUE' => 'http://myhost.foo.gr:2811'
+            'b2handle.handle.api_URL' => {
+              'VALUE' => 'https://epic.grnet.gr/api/v2/handles/'
             },
-            'myhost.foo.gr_HOSTDN' => {
+            'b2handle.handle.api_HOSTDN' => {
               'VALUE' => 'CERTIFICATE_DN'
             }
+          },
+          'EXTENSIONS' => {
+             [...]
           }
         }
       }
     },
-    'myservice.foo2' => {
+    'b2handle.handle.resolver' => {
       'ID' => {
         '45V3' => {
           'ATTRIBUTES' => {
-            'myservice.foo2_URL' => {
-              'VALUE' => 'https://myhost.foo.gr:1247'
+            'b2handle.handle.api_URL' => {
+              'VALUE' => 'https://epic.grnet.gr'
             }
           }
         }
@@ -72,22 +75,22 @@ The following example is a representation of the structure we use to store the i
 ##### 2) Example of two same service endpoints (same pairs of host/service_type):
 
 ```
-'myhost.foo.gr' => {
-  'HOSTNAME' => 'myhost.foo.gr',
+'epic.grnet.gr' => {
+  'HOSTNAME' => 'epic.grnet.gr',
   'SERVICES' => {
-    'myservice.foo' => {
+    'b2handle.handle.api' => {
       'ID' => {
         '352DF8' => {
           'ATTRIBUTES' => {
-            'myservice.foo_URL' => {
-              'VALUE' => 'https://myhost.foo.gr/api/v2/pointer/foo'
+            'b2handle.handle.api_URL' => {
+              'VALUE' => 'https://epic.grnet.gr/api/v2/handles/'
             }
           }
         },
         'AFTV42' => {
           'ATTRIBUTES' => {
-            'myservice.foo_URL' => {
-              'VALUE' => 'https://myhost.foo.gr/api/v2/pointer/'
+            'b2handle.handle.api_URL' => {
+              'VALUE' => 'https://epic.grnet.gr/api/v2/handles/foo'
             }
           }
         }
@@ -103,27 +106,27 @@ The service_type ID can be used also in the Nagios service configurations (as a 
 ```
 define service{
         [...]
-        host_name                       myhost.foo.gr
-        servicegroups                   local, SITE_MYSITE_myservice.foo, SERVICE_myservice.foo
-        service_description             project.myservice.foo-TCP-ID
-                _service_uri     myhost.foo.gr
-        _metric_name     project.myservice.foo-TCP-ID
-        _service_flavour     myservice.foo
+        host_name                       epic.grnet.gr
+        servicegroups                   local, SITE_GRNET_b2handle.handle.api, SERVICE_b2handle.handle.api
+        service_description             eu.eudat.b2handle.handle.api-TCP-ID --url https://epic.grnet.gr/api/v2/handles/
+                _service_uri     epic.grnet.gr
+        _metric_name     eu.eudat.b2handle.handle.api-TCP-ID
+        _service_flavour     b2handle.handle.api
         [...]
 }
 define service{
         [...]
-        host_name                       myhost.foo.gr
-        servicegroups                   local, SITE_MYSITE_myservice.foo, SERVICE_myservice.foo
-        service_description             project.myservice.foo-TCP-ID
-                _service_uri     myhost.foo.gr
-        _metric_name     project.myservice.foo-TCP-ID
-        _service_flavour     myservice.foo
+        host_name                       epic.grnet.gr
+        servicegroups                   local, SITE_GRNET_b2handle.handle.api, SERVICE_b2handle.handle.api
+        service_description             eu.eudat.b2handle.handle.api-TCP-ID --url https://epic.grnet.gr/api/v2/handles/foo
+                _service_uri     epic.grnet.gr
+        _metric_name     eu.eudat.b2handle.handle.api-TCP-ID
+        _service_flavour     b2handle.handle.api
         [...]
 }
 ```
 
-In the example above we have two same service_endpoints (host/service_type) that we want to monitor by using one specific check with different parameters. In order to prevent Nagios handle this as a duplicate definition, we include the ID in the service_description variable.
+In the example above we have two same service_endpoints (host/service_type) that we want to monitor by using one specific check with different parameters. In order to prevent Nagios handle this as a duplicate definition we include the ID in the `service_description` variable. The ID refers to the GOCDB entry with the specific parameter eg. assuming that we follow the example 2 we gave a few lines above the ID in the first definition would be `352DF8` whereas the second one whould be `AFTV42`.
 
 # Drawbacks
 [drawbacks]: #drawbacks
