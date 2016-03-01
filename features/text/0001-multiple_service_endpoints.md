@@ -135,8 +135,8 @@ define service{
 
 In the example above we have two same service_endpoints (host/service_type) that we want to monitor by using one specific check with different parameters. In order to prevent Nagios handle this as a duplicate definition we include the ID in the `service_description` variable. The ID refers to the GOCDB entry with the specific parameter eg. assuming that we follow the example 2 we gave a few lines above the ID in the first definition would be `352DF8` whereas the second one whould be `AFTV42`.
 
-###### Note
-For backwards compatibility we follow the naming convention <serviceType_PARAMETER-NAME> to store the GOCDB attributes (eg. `b2handle.handle.api_URL` , `b2handle.handle.api_HOSTDN` ). However this is subject to change in future releases.
+###### Note:
+For backwards compatibility we follow the naming convention `serviceType_PARAMETER-NAME` to store the GOCDB attributes (eg. `b2handle.handle.api_URL` , `b2handle.handle.api_HOSTDN` ). However this is subject to change in future releases.
 
 # Drawbacks
 [drawbacks]: #drawbacks
